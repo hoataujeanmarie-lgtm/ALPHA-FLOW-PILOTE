@@ -2,25 +2,28 @@ from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-# Tes données réelles (Le Cerveau de ton site)
+# Tes Piliers de l'Empire
 PILIERS = {
     "or_vert": {
         "titre": "L'OR VERT (Vanille)",
-        "info": "500 m² - 130 poteaux",
-        "calcul": "Objectif : 13 000 € / mois (13 Unités Alpha)",
-        "action": "Vérifier l'humidité des serres et la pousse."
+        "info": "130 poteaux - Moorea",
+        "revenu": 13000,
+        "detail": "Objectif : 13 000 € / mois",
+        "action": "Vérifier la pollinisation et l'humidité."
     },
     "lagon": {
         "titre": "LE LAGON (Glamping)",
-        "info": "Moorea - 10 tentes Luxe",
-        "calcul": "Objectif : 18 800 € / mois (18,8 Unités Alpha)",
-        "action": "Lancer le script de réservation 'Eco-Luxury'."
+        "info": "10 tentes - Vaianae",
+        "revenu": 18800,
+        "detail": "Objectif : 18 800 € / mois",
+        "action": "Préparer le terrain pour les premières tentes."
     },
     "ecorce": {
         "titre": "L'ÉCORCE (Faa'a)",
-        "info": "Appartement en rénovation",
-        "calcul": "Objectif : 1 050 € net / mois (1 Unité Alpha)",
-        "action": "Finaliser les finitions pour mise sur Airbnb."
+        "info": "Appartement Airbnb",
+        "revenu": 10500,
+        "detail": "Objectif : 1 050 € / mois",
+        "action": "Finir les travaux de peinture."
     }
 }
 
@@ -28,35 +31,45 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ALPHA-FLOW | Cockpit Personnel</title>
+    <title>ALPHA-FLOW | Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0b0e14; color: #e0e0e0; text-align: center; padding: 20px; }
-        .container { max-width: 600px; margin: auto; background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #00ff88; letter-spacing: 2px; }
-        .btn-group { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .btn-pilier { background: #21262d; color: #00ff88; padding: 15px; border-radius: 10px; border: 1px solid #30363d; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-pilier:hover { background: #30363d; border-color: #00ff88; }
-        .resultat { margin-top: 30px; padding: 20px; border: 1px solid #00ff88; background: #0d1117; border-radius: 10px; display: {% if pilier %} block {% else %} none {% endif %}; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0b0e14; color: #e0e0e0; text-align: center; padding: 10px; }
+        .container { max-width: 500px; margin: auto; background: #161b22; padding: 20px; border-radius: 15px; border: 1px solid #30363d; }
+        h1 { color: #00ff88; font-size: 1.5em; }
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .btn { background: #21262d; color: #00ff88; padding: 15px; border-radius: 8px; border: 1px solid #30363d; cursor: pointer; font-weight: bold; text-transform: uppercase; }
+        .btn-gold { border-color: #ffd700; color: #ffd700; background: #1c1c1c; }
+        .resultat { margin-top: 20px; padding: 15px; border: 1px solid #00ff88; background: #0d1117; border-radius: 10px; }
+        .liberte { border-color: #ffd700; color: #ffd700; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ALPHA-FLOW PILOTE</h1>
-        <p style="color: #8b949e;">Statut : OMEGA STATUS - Jean-Marie</p>
-        
+        <p style="color: #8b949e;">Propriétaire : Jean-Marie</p>
+
         <form method="POST" class="btn-group">
-            <button type="submit" name="pilier" value="or_vert" class="btn-pilier">L'OR VERT (Moore'a)</button>
-            <button type="submit" name="pilier" value="lagon" class="btn-pilier">LE LAGON (Glamping)</button>
-            <button type="submit" name="pilier" value="ecorce" class="btn-pilier">L'ÉCORCE (Faa'a)</button>
+            <button type="submit" name="pilier" value="or_vert" class="btn">L'OR VERT</button>
+            <button type="submit" name="pilier" value="lagon" class="btn">LE LAGON</button>
+            <button type="submit" name="pilier" value="ecorce" class="btn">L'ÉCORCE</button>
+            <button type="submit" name="pilier" value="liberte" class="btn btn-gold">☀️ OBJECTIF LIBERTÉ</button>
         </form>
 
-        {% if pilier %}
+        {% if vue == 'pilier' %}
         <div class="resultat">
-            <h2 style="color: #00ff88;">{{ pilier.titre }}</h2>
-            <p><strong>Détails :</strong> {{ pilier.info }}</p>
-            <p style="font-size: 1.2em;"><strong>Finances :</strong> {{ pilier.calcul }}</p>
-            <hr style="border: 0.5px solid #30363d; margin: 15px 0;">
-            <p style="color: #ffa657;"><strong>PROCHAINE ÉTAPE :</strong> {{ pilier.action }}</p>
+            <h2 style="color: #00ff88;">{{ data.titre }}</h2>
+            <p>{{ data.info }}</p>
+            <p><strong>{{ data.detail }}</strong></p>
+            <p style="color: #ffa657;">Étape : {{ data.action }}</p>
+        </div>
+        {% elif vue == 'liberte' %}
+        <div class="resultat liberte">
+            <h2>PROJET BOUSSOLE</h2>
+            <p>Potentiel Total : <strong>{{ total }} € / mois</strong></p>
+            <p>Soit <strong>{{ total // 1000 }} Unités Alpha</strong></p>
+            <hr style="border: 0.5px solid #ffd700;">
+            <p><em>"La liberté de Stéphanie commence ici."</em></p>
         </div>
         {% endif %}
     </div>
@@ -66,11 +79,19 @@ HTML_TEMPLATE = """
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    selected_pilier = None
+    vue = None
+    data = None
+    total_revenu = sum(p['revenu'] for p in PILIERS.values())
+    
     if request.method == 'POST':
         pilier_key = request.form.get('pilier')
-        selected_pilier = PILIERS.get(pilier_key)
-    return render_template_string(HTML_TEMPLATE, pilier=selected_pilier)
+        if pilier_key == 'liberte':
+            vue = 'liberte'
+        else:
+            vue = 'pilier'
+            data = PILIERS.get(pilier_key)
+            
+    return render_template_string(HTML_TEMPLATE, vue=vue, data=data, total=total_revenu)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=10000)
